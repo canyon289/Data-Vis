@@ -73,6 +73,7 @@ d3.csv("data.csv", function(error, csv) {
   x1.domain(ageNames).rangeRoundBands([0, x0.rangeBand()]);
   y.domain([0, d3.max(data, function(d) { return d3.max(d.ages, function(d) { return d.value; }); })]);
 
+  /*
   svg.append("g")
       .attr("class", "x_axis")
       .attr("transform", "translate(0," + height + ")")
@@ -87,6 +88,7 @@ d3.csv("data.csv", function(error, csv) {
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Population");
+	*/
 
   var state = svg.selectAll(".state")
       .data(data, function(d) {return d.State})

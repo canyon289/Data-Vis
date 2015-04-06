@@ -36,6 +36,7 @@ var data
 
 var margin = {top:20 ,right: 20, bottom:30, left:40};
 var row_height = 30;
+var row_margin = 5;
 var width = 960
 
 d3.csv("CostExample.csv", function(error, csv) {
@@ -43,17 +44,18 @@ d3.csv("CostExample.csv", function(error, csv) {
 	data = csv
 	var height = data.length * row_height
 	
-	//Set Scales
-	var y1 = d3.scale.ordinal()
-				//.range
-	
 	//Get keys of cost values
 	var costNames = d3.keys(data[0])
 						.filter(function(header) {
-							return ["Key", "Part Number", "Description"].indexOf(header) === -1;
+							return ["Row Number", "Part Number", "Description"].indexOf(header) === -1;
 						});
+                        
+    //Set Scale for cost groups
+	var y1 = d3.scale.ordinal()
+                .domain(costNames)
+				.range(0, row_height)
 	
-	/*Iterate over data array, for each object define a new object labled costs
+	/*Iterate over data array, for each object define a new object labeled costs
 	  which is an object with two values */
 	data.forEach(function(d) {
 		d.costs = costNames.map( function(cost) {return {cost:cost, value:+d[cost]};});
@@ -66,18 +68,17 @@ d3.csv("CostExample.csv", function(error, csv) {
 						  .attr("height", height + margin.top + margin. bottom)
 						  .attr("width", width + margin.left + margin.right)
 						.append("g")
-						  .attr("transform")
+						  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Start adding groups for the groups of cost bars
+    svg_canvas.selectAll(".part_cost_group")
+                .data(data, function(d) {return d["Part Number"]})
+              .enter().append("g")
+                .attr("class", "part_cost_group")
+                .attr("transform", function(d,i) {return "translate(0,"+ i*(row_height + row_margin) + ")";});
 	
 });
 
-//Create SVG dimensions from data
-
-
-//Create scales
-
-//*Maybe* create axis
-
-//Load data
 
 </script>
 </body>
