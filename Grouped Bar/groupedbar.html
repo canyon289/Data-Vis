@@ -63,7 +63,7 @@ d3.csv("data.csv", function(error, csv) {
   
   var ageNames = d3.keys(data[0]).filter(function(key) { return key !== "State"; });
 
-  debugger
+  
   
   data.forEach(function(d) {
     d.ages = ageNames.map(function(name) { return {name: name, value: +d[name]}; });
@@ -98,7 +98,7 @@ d3.csv("data.csv", function(error, csv) {
 	  
 	  
   state.selectAll("rect")
-      .data(function(d) { return d.ages; })
+      .data(function(d) { return  d.ages; })
     .enter().append("rect")
       .attr("width", x1.rangeBand())
       .attr("x", function(d) { return x1(d.name); })

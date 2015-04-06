@@ -39,10 +39,14 @@ var row_height = 30;
 var row_margin = 5;
 var width = 960
 
+//Define color scale
+var color = d3.scale.ordinal()
+        .range(["#98abc5", "#8a89a6", "#7b6888"])
+
 d3.csv("CostExample.csv", function(error, csv) {
 
 	data = csv
-	var height = data.length * row_height
+	var height = data.length * (row_height + row_margin)
 	
 	//Get keys of cost values
 	var costNames = d3.keys(data[0])
@@ -53,7 +57,7 @@ d3.csv("CostExample.csv", function(error, csv) {
     //Set Scale for cost groups
 	var y1 = d3.scale.ordinal()
                 .domain(costNames)
-				.range(0, row_height)
+				.rangeRoundBands([0, row_height])
 	
 	/*Iterate over data array, for each object define a new object labeled costs
 	  which is an object with two values */
@@ -71,12 +75,22 @@ d3.csv("CostExample.csv", function(error, csv) {
 						  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     
     //Start adding groups for the groups of cost bars
-    svg_canvas.selectAll(".part_cost_group")
-                .data(data, function(d) {return d["Part Number"]})
+    var part_cost = svg_canvas.selectAll(".part_cost_group")
+                .data(data, function(d) {return d["Part Number"];})
               .enter().append("g")
                 .attr("class", "part_cost_group")
-                .attr("transform", function(d,i) {return "translate(0,"+ i*(row_height + row_margin) + ")";});
-	
+                .attr("transform", function(d,i) {return "translate(0,"+ i*(row_height + row_margin) + ")";})
+    
+    //How it is getting the value
+    //Getting value datum is automatically passed from selections
+        part_cost.selectAll("rect") 
+              .data(function(d) {return d.costs;})
+               .enter().append("rect")
+               .attr("x", 0)
+               .attr("y", function(d) {return y1(d["cost"]);} )
+               .attr("width", function(d) {return d["value"] ;} )
+               .attr("height", y1.rangeBand())
+               .attr("fill", function(d) {return color(d["cost"]) ;})
 });
 
 
