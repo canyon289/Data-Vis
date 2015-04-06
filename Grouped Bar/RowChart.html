@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x_axis path {
+  display: none;
+}
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+/*
+Figure out how to sort on the fly and whatnot
+*/
+</script>
+
+<script>
+//Create global variables for data, margins
+var data
+
+var margin = {top:20 ,right: 20, bottom:30, left:40};
+var row_height = 30;
+var width = 960
+
+d3.csv("CostExample.csv", function(error, csv) {
+
+	data = csv
+	var height = data.length * row_height
+	
+	//Set Scales
+	var y1 = d3.scale.ordinal()
+				//.range
+	
+	//Get keys of cost values
+	var costNames = d3.keys(data[0])
+						.filter(function(header) {
+							return ["Key", "Part Number", "Description"].indexOf(header) === -1;
+						});
+	
+	/*Iterate over data array, for each object define a new object labled costs
+	  which is an object with two values */
+	data.forEach(function(d) {
+		d.costs = costNames.map( function(cost) {return {cost:cost, value:+d[cost]};});
+	});
+	
+	//Phew the data formatting is done! Onto the svg
+	//Lets append the svg with the margins as per convention, we do this using a transform
+	var svg_canvas = d3.select("body")
+						.append("svg")
+						  .attr("height", height + margin.top + margin. bottom)
+						  .attr("width", width + margin.left + margin.right)
+						.append("g")
+						  .attr("transform")
+	
+});
+
+//Create SVG dimensions from data
+
+
+//Create scales
+
+//*Maybe* create axis
+
+//Load data
+
+</script>
+</body>
