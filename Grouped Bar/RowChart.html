@@ -23,10 +23,15 @@ body {
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-
+<script src="d3/d3.v3.js"></script>
 <script>
 /*
-Figure out how to sort on the fly and whatnot
+TODO
+Immediate todo
+Change reading from right to left
+Add scales
+Add sorting capability
+Change functionality to only items with cost
 */
 </script>
 
@@ -34,9 +39,9 @@ Figure out how to sort on the fly and whatnot
 //Create global variables for data, margins
 var data
 
-var margin = {top:20 ,right: 20, bottom:30, left:40};
+var margin = {top:20 ,right: 60, bottom:30, left:40};
 var row_height = 30;
-var row_margin = 5;
+var row_margin = 15;
 var width = 960
 
 //Define color scale
@@ -53,18 +58,23 @@ d3.csv("CostExample.csv", function(error, csv) {
 						.filter(function(header) {
 							return ["Row Number", "Part Number", "Description"].indexOf(header) === -1;
 						});
-                        
-    //Set Scale for cost groups
-	var y1 = d3.scale.ordinal()
-                .domain(costNames)
-				.rangeRoundBands([0, row_height])
-	
-	/*Iterate over data array, for each object define a new object labeled costs
+    /*Iterate over data array, for each object define a new object labeled costs
 	  which is an object with two values */
 	data.forEach(function(d) {
 		d.costs = costNames.map( function(cost) {return {cost:cost, value:+d[cost]};});
 	});
-	
+    console.log(d3.max(data, function(d) {return d3.max(d.costs, function(d) {return d.value;})}))
+    //X
+    var x = d3.scale.linear()
+                    .domain([0, d3.max(data, function(d) {return d3.max(d.costs, function(d) {return d.value;})})])
+                    .range([0, width])
+    
+    
+    //Set Scale for cost bars
+	var y1 = d3.scale.ordinal()
+                .domain(costNames)
+				.rangeRoundBands([0, row_height])
+
 	//Phew the data formatting is done! Onto the svg
 	//Lets append the svg with the margins as per convention, we do this using a transform
 	var svg_canvas = d3.select("body")
@@ -80,17 +90,41 @@ d3.csv("CostExample.csv", function(error, csv) {
               .enter().append("g")
                 .attr("class", "part_cost_group")
                 .attr("transform", function(d,i) {return "translate(0,"+ i*(row_height + row_margin) + ")";})
+    //Can I append text here?
+    
     
     //How it is getting the value
     //Getting value datum is automatically passed from selections
         part_cost.selectAll("rect") 
               .data(function(d) {return d.costs;})
                .enter().append("rect")
-               .attr("x", 0)
+               .attr("x", function(d) {return width - d["value"];})
                .attr("y", function(d) {return y1(d["cost"]);} )
                .attr("width", function(d) {return d["value"] ;} )
                .attr("height", y1.rangeBand())
                .attr("fill", function(d) {return color(d["cost"]) ;})
+    
+        //Add Label
+        //Eventually change this to html
+        //Double check how selections work to get this right
+        /*part_cost.selectAll("text")
+            .data(function(d) {return [d["Part Number"]];})
+          .enter().append("text")
+            .text(function(d) {return d;})
+            .attr("class", "label")
+            .attr("x", 0)
+            .attr("y", 0)
+        */
+        
+        ///These functions are identical!    
+        part_cost
+            //.datum(function(d) {return d["Part Number"];})
+            .datum(function(d) {return d;})
+            .append("text")
+            .text(function(d) {return d["Part Number"] +": " + d["Description"];})
+            .attr("class", "label")
+            .attr("x", width + 5)
+            .attr("y", 10)     
 });
 
 
