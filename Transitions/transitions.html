@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.line_class {
+
+    stroke: black;
+    stroke-width: 5px;
+    
+    }
+</style>
+<body>
+<script src="../d3/d3.v3.js"></script>
+<script>
+
+//Dataset
+var x = [0,20,40];
+
+//No Margins for this one just for tests
+var margin = {top: 20, right: 20, bottom:40, left:40};
+
+var height = 500 - margin.left - margin.right;
+var width = 960 - margin.top - margin.bottom;
+var colors = d3.scale.category10()
+
+
+var x_scale = d3.scale.linear()
+        .range([0, width]) //Range is input
+        .domain([0, d3.max(x)]) //Domain is output
+        
+var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+svg.selectAll("line")
+            .data(d3.pairs(x))
+          .enter()
+            .append("line")
+            .attr("x1", function(d,i) {return x_scale(d[0]);})
+            .attr("x2", function(d,i) {return x_scale(d[1]);})
+            .attr("y1", height/2)
+            .attr("y2", height/2)
+            .attr("class", "line_class")
+            
+svg.selectAll("circle")
+            .data(x)
+          .enter()
+            .append("circle")
+            .attr("r", 20)
+            .attr("cx", function(d,i) {return x_scale(d);})
+            .attr("cy", height/2)
+            .attr("fill", function(d,i) {return colors(i);})
+          //.exit()
+            //.remove()
+
+ 
+function update() {
+    //Transition together
+   svg.selectAll("circle")
+                .transition()
+                .duration(2000)
+                .attr("cy", 0);
+
+    svg.selectAll("line")
+            .transition()
+            .duration(2000)
+            .attr("y1", 0)         
+            .attr("y2", 0);
+            
+};   
+ 
+function update1() {
+    //Transition separately
+    svg.selectAll("circle")
+      .transition()
+        .duration(2000)
+        .attr("cy", 0)
+        .each("end", function() {
+            svg.selectAll("line")
+                    .transition()
+                    .duration(2000)
+                    .attr("y1", 0)         
+                    .attr("y2", 0);
+            })
+      .transition()
+          .attr("cx", 0)
+    }
+    
+            
+
+            
+            
+</script>
+</body>

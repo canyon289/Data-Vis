@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.line_class {
+
+    stroke: black;
+    stroke-width: 3px;
+    opacity: .7;
+    
+    }
+</style>
+<body>
+<script src="../d3/d3.v3.js"></script>
+<script>
+
+//Set SVG parameters
+var data
+
+var margin = {"left":20, "right":20, "top":20, "bottom": 20}
+var height = 760 - margin.top - margin.bottom
+var width = 1280 - margin.left - margin.right
+
+var slopegraph_svg
+
+//Years for Lines
+var years = [2013,2014,2015]
+
+//Set Scales
+var x_scale = d3.scale.ordinal()
+                .domain(years)
+                .rangeRoundBands([0,width])
+
+
+//Change this as its going to go from -max to + max
+var y_scale = d3.scale.linear()
+                .domain([-200,200])
+                .range([0, height])
+                
+
+//Read in data
+d3.json("data.json", function(error, json) {
+    //Load data and construct 
+    data = json   
+    draw_canvas()
+    draw_cost_lines(data)
+    });
+
+//Helper Functions
+var cost_diff = function(cost) {
+    //Returns differentials from first value in array
+    var cost_diff_array = []
+    
+    cost.forEach(function(d) {
+        cost_diff_array.push(d-cost[0])
+        });
+        
+    return cost_diff_array;
+    }
+
+//Drawing Functions    
+function draw_canvas(){
+    slopegraph_svg = d3.select("body")
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+                      .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+    //Maybe I should do this with scales instead. Consider it later
+    slopegraph_svg.selectAll("line")
+                .data(years)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) {return x_scale(d);})
+                .attr("x2", function(d) {return x_scale(d);})
+                .attr("y1", 0)
+                .attr("y2", height)
+                .attr("class", "line_class")
+    }
+    
+function draw_cost_lines(data) {
+
+    var part_groups = slopegraph_svg.selectAll("g")
+                    .data(data, function(d) {return d["Part_Num"];})
+                  .enter()
+                    .append("g")
+                    .on("mouseover", function() {
+                            console.log("test")
+                            })
+
+    
+    part_groups.select("line")
+        .data(function(d) { 
+        debugger
+        return d3.pairs(d3.zip(d["Years"], d["Cost"]))
+        })
+    }
+</script>
+</body>
