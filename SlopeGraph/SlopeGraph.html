@@ -2,97 +2,46 @@
 <meta charset="utf-8">
 <style>
 
-.line_class {
+.year_line {
 
     stroke: black;
+    stroke-width: 3px;
+    opacity: .3;
+    
+    }
+    
+    
+.cost_line {
+
+    stroke: green;
     stroke-width: 3px;
     opacity: .7;
     
     }
+ /*Styles axes*/   
+.xAxis text,
+.yAxis text {
+  font: 15px sans-serif;
+}
+
+.xAxis line
+.yAxis line {
+  stroke: none;
+  shape-rendering: crispEdges;
+}
+
+.xAxis path,
+.yAxis path
+{
+  fill: none;
+}
+
+
+
+    
+    
 </style>
 <body>
 <script src="../d3/d3.v3.js"></script>
-<script>
-
-/*
-Create two data structures. One is the lines data, another is a part description lookup with cost
-*/
-
-//Set SVG parameters
-var data
-var slopegraph_svg
-
-var margin = {"left":20, "right":20, "top":20, "bottom": 20}
-var height = 760 - margin.top - margin.bottom
-var width = 1280 - margin.left - margin.right
-
-
-//Years for Lines
-var years = [2013,2014,2015]
-
-//Set Scales
-var x_scale = d3.scale.ordinal()
-                .domain(years)
-                .rangeRoundBands([0,width])
-
-
-//Change this as its going to go from -max to + max
-var y_scale = d3.scale.linear()
-                .domain([-200,200])
-                .range([0, height])
-                
-
-//Read in data
-d3.json("data.json", function(error, json) {
-    //Load data and construct 
-    data = json   
-    draw_canvas()
-    draw_cost_lines(data)
-    });
-
-//Helper Functions
-var cost_diff = function(cost) {
-    //Returns differentials from first value in array
-    var cost_diff_array = []
-    
-    cost.forEach(function(d) {
-        cost_diff_array.push(d-cost[0])
-        });
-        
-    return cost_diff_array;
-    }
-
-//Drawing Functions    
-function draw_canvas(){
-    //Adds svg and draws year lines
-    slopegraph_svg = d3.select("body")
-                        .append("svg")
-                        .attr("width", width)
-                        .attr("height", height)
-                      .append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    
-    //Maybe I should do this with scales instead. Consider it later
-    slopegraph_svg.selectAll("line")
-                .data(years)
-                .enter()
-                .append("line")
-                .attr("x1", function(d) {return x_scale(d);})
-                .attr("x2", function(d) {return x_scale(d);})
-                .attr("y1", 0)
-                .attr("y2", height)
-                .attr("class", "line_class")
-    }
-    
-function draw_cost_lines(data) {
-    //Draws cost lines
-    //Decided on data structure where each line is it's own object
-    
-    slope_svg.selectAll("line")
-        .data(function(d) { 
-        debugger
-        return d3.pairs(d3.zip(d["Years"], d["Cost"]))
-        })
-    }
-</script>
+<script src="SlopeGraph.js"> </script>
 </body>
