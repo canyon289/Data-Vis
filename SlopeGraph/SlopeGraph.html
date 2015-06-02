@@ -14,14 +14,18 @@
 <script src="../d3/d3.v3.js"></script>
 <script>
 
+/*
+Create two data structures. One is the lines data, another is a part description lookup with cost
+*/
+
 //Set SVG parameters
 var data
+var slopegraph_svg
 
 var margin = {"left":20, "right":20, "top":20, "bottom": 20}
 var height = 760 - margin.top - margin.bottom
 var width = 1280 - margin.left - margin.right
 
-var slopegraph_svg
 
 //Years for Lines
 var years = [2013,2014,2015]
@@ -60,6 +64,7 @@ var cost_diff = function(cost) {
 
 //Drawing Functions    
 function draw_canvas(){
+    //Adds svg and draws year lines
     slopegraph_svg = d3.select("body")
                         .append("svg")
                         .attr("width", width)
@@ -80,17 +85,10 @@ function draw_canvas(){
     }
     
 function draw_cost_lines(data) {
-
-    var part_groups = slopegraph_svg.selectAll("g")
-                    .data(data, function(d) {return d["Part_Num"];})
-                  .enter()
-                    .append("g")
-                    .on("mouseover", function() {
-                            console.log("test")
-                            })
-
+    //Draws cost lines
+    //Decided on data structure where each line is it's own object
     
-    part_groups.select("line")
+    slope_svg.selectAll("line")
         .data(function(d) { 
         debugger
         return d3.pairs(d3.zip(d["Years"], d["Cost"]))
