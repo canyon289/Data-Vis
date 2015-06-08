@@ -6,30 +6,23 @@ Create two data structures. One is the lines data, another is a part description
 var data
 var slopegraph_svg
 
-var margin = {"left":60, "right":60, "top":20, "bottom": 40};
+var margin = {"left":60, "right":90, "top":40, "bottom": 40};
 var height = 900 - margin.top - margin.bottom;
-var width = 1280 - margin.left - margin.right;
+var width = 1200 - margin.left - margin.right;
 
 //Array for all years standards are available
-//Perhaps
 var years = [2013,2014,2015];
 
 //Set Scales for visualization
-//Fix the domain later
 var x_scale = d3.scale.linear()
                 .domain([2013, 2015])
                 .rangeRound([0,width]);
-                //.rangeRoundBands([0,width])
-
 
 //Change this as its going to go from -max to + max
 var y_scale = d3.scale.linear()
-                //.domain([-220, 220])
-                .domain([-20, 20])
                 .rangeRound([height, 0]);
 
 //Helper Functions
-
 function part_num_string(svg_element) {return d3.select(svg_element).datum()["key"].substring(0,12);}
 
 function line_selector(part_num) {
@@ -43,24 +36,37 @@ function line_selector(part_num) {
 };
 
 
-function hours_array(part_num, part_num_lines) {
-  
-  base_cost = data["base_cost"]["part_num"]
+function hours_array_generator(part_num, part_num_lines) {
+  //Takes part num and line selection, creates labels for total hours
+  var base_cost = data["base_cost"][part_num]
   var hours_array = []
   
   part_num_lines.data().forEach(function(d) {
-    debugger
-    hours_array.push({"year": d["x1"], "cost": base_cost + d["y1"]})
-    hours_array.push({"year": d["x2"], "cost": base_cost + d["y2"]})
+    hours_array.push({"year": d["x1"], "cost": base_cost + d["y1"]}, {"year": d["x2"], "cost": base_cost + d["y2"]})
   });
+  
+  if (part_num === "10393264-032") {
+    //debugger
+  }
   
   return hours_array
 };
 
+function all_y(lines_array) {
+  //Returns an array of all y values
+  y_values = []
+  
+  lines_array.forEach(function(d) {
+    y_values.push(d["y1"], d["y2"])
+  });
+  
+  return y_values
+}
+
 //Drawing Functions    
 function draw_canvas(){
     //Adds svg and draws year lines
-    slopegraph_svg = d3.select("body")
+    slopegraph_svg = d3.select("#Slopegraph")
                         .append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
@@ -85,6 +91,7 @@ function add_axes() {
           .scale(x_scale)
           .orient("bottom")
           .tickValues(years)
+          .tickFormat(d3.format("d"))
     
     var yAxis = d3.svg.axis()
           .scale(y_scale)
@@ -116,20 +123,31 @@ function draw_cost_lines(data) {
         .attr("y2", function(d) {return y_scale(d["y2"])})
         .attr("class", "cost_line")
         .attr("stroke", function(d) {return d["y1"] > d["y2"] ? "green": (d["y1"] < d["y2"] ? "red" : "black");})
-        .attr("stroke-width", "3px")
         .attr("opacity", .1)
       .on("mouseover", function(d) {
         
             var part_num = part_num_string(this)
             
             var part_lines = line_selector(part_num)
-            
+            //Highlight parts line
             part_lines
-              .style("stroke-width", "10px")
+              .style("stroke-width", "5px")
               .style("opacity", 1);
-              
-            hours_array(part_num, part_lines)
             
+            //Add labels for hours on top of each year line
+            slopegraph_svg.selectAll(".Total_Hours")
+              .data(hours_array_generator(part_num, part_lines))
+            .enter()
+              .append("text")
+              .text(function(d) {return d["cost"] + " hours";})
+              .attr("class", "Total_Hours")
+              .attr("x", function(d) {return x_scale(d["year"]);})
+              .attr("y", -10)
+              .attr("text-anchor", "middle");
+              
+            //Change text to include part number
+            d3.select("#Title h3")
+              .text(part_num)
           })
       .on("mouseout", function(d) {  
             var part_num = part_num_string(this)    
@@ -137,14 +155,20 @@ function draw_cost_lines(data) {
             line_selector(part_num)
               .style("stroke-width", null)
               .style("opacity", null);
+              
+             slopegraph_svg.selectAll(".Total_Hours").remove()
+             
+             d3.select("#Title h3")
+              .text("Each line is a change in average part standard for a workcenter. Hover over lines for detail")
           });
 }
 
-
-
 d3.json("multiple_line_base_cost.json", function(error, json) {
     //Load data and construct 
-    data = json   
+    data = json 
+    var max_y = d3.max(all_y(data["costs"], function(d) {return Math.abs(d)}))
+    y_scale.domain([-max_y, max_y])
+    
     draw_canvas()
     draw_cost_lines(data["costs"])
     add_axes()
