@@ -108,7 +108,7 @@ function add_axes() {
                 .attr("transform", "translate(" + (width + 20) + ",0)")
                 .call(yAxis)
 }
-
+    
 function draw_cost_lines(data) {
     //Draws cost lines
     //Decided on data structure where each line is it's own object
@@ -124,7 +124,9 @@ function draw_cost_lines(data) {
         .attr("class", "cost_line")
         .attr("stroke", function(d) {return d["y1"] > d["y2"] ? "green": (d["y1"] < d["y2"] ? "red" : "black");})
         .attr("opacity", .1)
-      .on("mouseover", function(d) {
+        .attr("xlink:href", "www.google.com")
+      .on('click', function() {window.open("http://eng.nov.com/TC_V3.swf?pn=" + part_num_string(this));})
+      .on("mouseover", function() {
         
             var part_num = part_num_string(this)
             
@@ -163,10 +165,12 @@ function draw_cost_lines(data) {
           });
 }
 
-d3.json("multiple_line_base_cost.json", function(error, json) {
+//d3.json("multiple_line_base_cost.json", function(error, json) {
+d3.json("WELD.json", function(error, json) {
     //Load data and construct 
     data = json 
-    var max_y = d3.max(all_y(data["costs"], function(d) {return Math.abs(d)}))
+    var max_y = d3.max(all_y(data["costs"]), function(d) {return Math.abs(d)})
+    //var max_y = 15;
     y_scale.domain([-max_y, max_y])
     
     draw_canvas()
