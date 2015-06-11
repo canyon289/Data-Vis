@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.year_line {
+    stroke: black;
+    stroke-width: 3px;
+    opacity: .3;
+    }
+    
+.cost_line {
+    stroke-width: 2px;
+    opacity: .4;
+    }
+
+    
+ /*Styles axes*/   
+.xAxis text,
+.yAxis text {
+  font: 15px sans-serif;
+}
+
+.xAxis line
+.yAxis line {
+  stroke: none;
+  shape-rendering: crispEdges;
+}
+
+.xAxis path,
+.yAxis path
+{
+  fill: none;
+}
+
+    
+</style>
+<body>
+<button type="button" id = "scroll_button">Test</button>
+<script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="../lib/js/smooth-scroll.js"></script>
+
+<script>
+for (i=0; i < 100; i++) {
+    $("body").append("<h2>test " + i + "</h2>")
+    }
+    
+$("h2:last").attr("id", "test_id")
+$("button").click(function() {
+    //Figure out how to scroll to bottom
+    smoothScroll.init();
+    
+    //Scroll to given id
+    smoothScroll.animateScroll(null, "#test_id", {speed: 10000})
+});
+    
+    
+
+</script>
+</body>

@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <head>
     <style>
     * {
@@ -223,6 +221,7 @@
         itemSelector: '.element-item',
         layoutMode: 'fitRows',
         filter: function() {
+          debugger
           return qsRegex ? $(this).text().match( qsRegex ) : true;
         }
       });
