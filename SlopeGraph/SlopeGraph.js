@@ -6,8 +6,9 @@ Create two data structures. One is the lines data, another is a part description
 var data
 var slopegraph_svg
 
+
 var margin = {"left":60, "right":90, "top":40, "bottom": 40};
-var height = 900 - margin.top - margin.bottom;
+var height = window.innerHeight - margin.top - margin.bottom;
 var width = 1200 - margin.left - margin.right;
 
 //Array for all years standards are available
@@ -19,8 +20,10 @@ var x_scale = d3.scale.linear()
                 .rangeRound([0,width]);
 
 //Change this as its going to go from -max to + max
+var yAxis
 var y_scale = d3.scale.linear()
                 .rangeRound([height, 0]);
+                
 
 //Helper Functions
 function part_num_string(svg_element) {return d3.select(svg_element).datum()["key"].substring(0,12);}
@@ -93,7 +96,7 @@ function add_axes() {
           .tickValues(years)
           .tickFormat(d3.format("d"))
     
-    var yAxis = d3.svg.axis()
+    yAxis = d3.svg.axis()
           .scale(y_scale)
           .orient("right")
           
@@ -119,8 +122,8 @@ function draw_cost_lines(data) {
       .append("line")
         .attr("x1", function(d) {return x_scale(d["x1"])})
         .attr("x2", function(d) {return x_scale(d["x2"])})
-        .attr("y1", function(d) {return y_scale(d["y1"])})
-        .attr("y2", function(d) {return y_scale(d["y2"])})
+        .attr("y1", y_scale(0))
+        .attr("y2", y_scale(0))
         .attr("class", "cost_line")
         .attr("stroke", function(d) {return d["y1"] > d["y2"] ? "green": (d["y1"] < d["y2"] ? "red" : "black");})
         .attr("opacity", .1)
@@ -162,18 +165,40 @@ function draw_cost_lines(data) {
              
              d3.select("#Title h3")
               .text("Each line is a change in average part standard for a workcenter. Hover over lines for detail")
-          });
-}
+          })
+        .transition()
+          .attr("x1", function(d) {return x_scale(d["x1"]);})
+          .attr("x2", function(d) {return x_scale(d["x2"]);})
+          .attr("y1", function(d) {return y_scale(d["y1"]);})
+          .attr("y2", function(d) {return y_scale(d["y2"]);});
+          
+         slopegraph_svg.select(".yAxis")
+           .transition()
+           .call(yAxis)
+          
 
-//d3.json("multiple_line_base_cost.json", function(error, json) {
-d3.json("WELD.json", function(error, json) {
-    //Load data and construct 
-    data = json 
-    var max_y = d3.max(all_y(data["costs"]), function(d) {return Math.abs(d)})
-    //var max_y = 15;
-    y_scale.domain([-max_y, max_y])
+}
     
-    draw_canvas()
-    draw_cost_lines(data["costs"])
-    add_axes()
-    });  
+function create_graph() {
+  d3.json("WELD.json", function(error, json) {
+      //Load data and construct 
+      data = json 
+      var max_y = d3.max(all_y(data["costs"]), function(d) {return Math.abs(d)})
+      console.log("max_y=" + max_y)
+      y_scale.domain([-max_y, max_y])
+      draw_cost_lines(data["costs"])
+      }); 
+}
+$("button").click(function() {
+    //Figure out how to scroll to bottom
+    smoothScroll.init();
+    
+    //Scroll to given id
+    smoothScroll.animateScroll(null, "#Slopegraph", {speed: 3000, callbackAfter:create_graph})
+});
+draw_canvas()
+y_scale.domain([0,0])
+console.log(y_scale.domain())
+add_axes()
+
+//slopegraph_svg.select(".yAxis").transition().duration(3000).call(yAxis);
