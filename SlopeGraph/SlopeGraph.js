@@ -3,12 +3,12 @@ Create two data structures. One is the lines data, another is a part description
 */
 
 //Set SVG parameters for Visualization
-var data
+var json_file
 var slopegraph_svg
 
-
+var marginforDescriptionDiv = 40
 var margin = {"left":60, "right":90, "top":40, "bottom": 40};
-var height = window.innerHeight - margin.top - margin.bottom;
+var height = window.innerHeight - margin.top - margin.bottom - 40;
 var width = 1200 - margin.left - margin.right;
 
 //Array for all years standards are available
@@ -19,7 +19,7 @@ var x_scale = d3.scale.linear()
                 .domain([2013, 2015])
                 .rangeRound([0,width]);
 
-//Change this as its going to go from -max to + max
+//YAxis hoisted for updates
 var yAxis
 var y_scale = d3.scale.linear()
                 .rangeRound([height, 0]);
@@ -39,9 +39,10 @@ function line_selector(part_num) {
 };
 
 
-function hours_array_generator(part_num, part_num_lines) {
-  //Takes part num and line selection, creates labels for total hours
-  var base_cost = data["base_cost"][part_num]
+function hours_mouseover_generator(part_num, part_num_lines) {
+  //Takes part num and line selection and creates labels for total hours
+  debugger
+  var base_cost = json_file["part_attr"][part_num]["base_cost"]
   var hours_array = []
   
   part_num_lines.data().forEach(function(d) {
@@ -56,7 +57,7 @@ function hours_array_generator(part_num, part_num_lines) {
 };
 
 function all_y(lines_array) {
-  //Returns an array of all y values
+  //Returns an array of all y values from input JSON
   y_values = []
   
   lines_array.forEach(function(d) {
@@ -88,11 +89,11 @@ function draw_canvas(){
                 .attr("class", "year_line")
     }
     
-function add_axes() {
+function draw_axes() {
     //Draws the axes for the years and cost
     var xAxis = d3.svg.axis()
           .scale(x_scale)
-          .orient("bottom")
+          .orient("top")
           .tickValues(years)
           .tickFormat(d3.format("d"))
     
@@ -103,8 +104,10 @@ function add_axes() {
      
     slopegraph_svg.append("g")
                 .attr("class", "xAxis")
-                .attr("transform", "translate(0," + height + ")")
+                .attr("transform", "translate(0,25)")
                 .call(xAxis)
+               .selectAll("text")
+                 .attr("transform", "rotate(-90)")
 
     slopegraph_svg.append("g")
                 .attr("class", "yAxis")
@@ -112,12 +115,12 @@ function add_axes() {
                 .call(yAxis)
 }
     
-function draw_cost_lines(data) {
+function draw_cost_lines(json_file) {
     //Draws cost lines
     //Decided on data structure where each line is it's own object
     
     slopegraph_svg.selectAll(".cost_line")
-        .data(data)
+        .data(json_file["costs"])
       .enter()
       .append("line")
         .attr("x1", function(d) {return x_scale(d["x1"])})
@@ -127,21 +130,19 @@ function draw_cost_lines(data) {
         .attr("class", "cost_line")
         .attr("stroke", function(d) {return d["y1"] > d["y2"] ? "green": (d["y1"] < d["y2"] ? "red" : "black");})
         .attr("opacity", .1)
-        .attr("xlink:href", "www.google.com")
       .on('click', function() {window.open("http://eng.nov.com/TC_V3.swf?pn=" + part_num_string(this));})
       .on("mouseover", function() {
-        
             var part_num = part_num_string(this)
             
-            var part_lines = line_selector(part_num)
             //Highlight parts line
+            var part_lines = line_selector(part_num)
             part_lines
               .style("stroke-width", "5px")
               .style("opacity", 1);
             
             //Add labels for hours on top of each year line
             slopegraph_svg.selectAll(".Total_Hours")
-              .data(hours_array_generator(part_num, part_lines))
+              .data(hours_mouseover_generator(part_num, part_lines))
             .enter()
               .append("text")
               .text(function(d) {return d["cost"] + " hours";})
@@ -151,8 +152,10 @@ function draw_cost_lines(data) {
               .attr("text-anchor", "middle");
               
             //Change text to include part number
+            var desc = json_file["part_attr"][part_num]["desc"]
+            
             d3.select("#Title h3")
-              .text(part_num)
+              .text(part_num + "-" + desc)
           })
       .on("mouseout", function(d) {  
             var part_num = part_num_string(this)    
@@ -175,30 +178,36 @@ function draw_cost_lines(data) {
          slopegraph_svg.select(".yAxis")
            .transition()
            .call(yAxis)
-          
-
 }
     
-function create_graph() {
-  d3.json("WELD.json", function(error, json) {
-      //Load data and construct 
-      data = json 
-      var max_y = d3.max(all_y(data["costs"]), function(d) {return Math.abs(d)})
-      console.log("max_y=" + max_y)
+function create_graph(resource_name) {
+  //Create slopegraph given resource name
+  var json_filename = resource_name + ".json"
+  
+  d3.json(json_filename, function(error, json) {
+      //Load data and construct slopegraph
+      json_file = json 
+      var max_y = d3.max(all_y(json_file["costs"]), function(d) {return Math.abs(d)})
       y_scale.domain([-max_y, max_y])
-      draw_cost_lines(data["costs"])
+      draw_cost_lines(json_file)
+      
       }); 
 }
+
+//UI Elements
 $("button").click(function() {
-    //Figure out how to scroll to bottom
-    smoothScroll.init();
+    //Get resource name and create callback to pass
+    var resource_name = this.textContent;
+    function graph_callback() {
+      create_graph(resource_name);
+    }
     
     //Scroll to given id
-    smoothScroll.animateScroll(null, "#Slopegraph", {speed: 3000, callbackAfter:create_graph})
+    smoothScroll.animateScroll(null, "#Slopegraph", {speed: 2000, easing: 'easeInCubic', callbackAfter:graph_callback});
 });
+
+//Initialize graph
 draw_canvas()
 y_scale.domain([0,0])
-console.log(y_scale.domain())
-add_axes()
-
-//slopegraph_svg.select(".yAxis").transition().duration(3000).call(yAxis);
+draw_axes()
+smoothScroll.init()
