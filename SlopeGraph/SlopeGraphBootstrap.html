@@ -20,6 +20,7 @@
         stroke-width: 2px;
         opacity: .4;
     }
+    
     /*Center svg*/
     svg {
     display:block;
@@ -68,20 +69,19 @@
         <div class="col-lg-6 col-lg-offset-3 text-center">
         <h3>Pick a Workcenter</h3>
         </div>
-      </div> <div class="row">
-        <div class="col-lg-6 col-lg-offset-3 text-center">
-        <button type="button" class="btn btn-success ">WELD</button>
+      </div> 
+      <div class="row">
+        <div class="col-lg-6 col-lg-offset-3 text-center buttons">
+          <button type="button" class="btn btn-success">WELD</button>
+          <button type="button" class="btn btn-success">TDWELD</button>
+          <button type="button" class="btn btn-success">200</button>
+          <button type="button" class="btn btn-success">201</button>
         </div>
       </div>
       
       <div class="row">
         <div class="col-lg-8 col-lg-offset-2" id="Title"><h3>Each line is a change in average part standard for a workcenter. Hover over lines for detail</h3></div>
       </div>
-      <!---
-      <div class="row">
-        <div class="col-lg-12 center-block"><input type="range" id="myRange" value="90"></div>
-      </div>  
-      --->
       <div class="row">
         <div class="col-lg-12" id="Slopegraph"></div>
       </div>
@@ -93,6 +93,7 @@
     <script src="../lib/bootstrap/js/bootstrap.min.js"></script>
     <script src="../lib/js/d3.v3.js"></script>
     <script src="../lib/js/smooth-scroll.js"></script>
+    <script src="../lib/js/queue.js"></script>
     <script src="SlopeGraph.js"> </script>
   </body>
 </html>

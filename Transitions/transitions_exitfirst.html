@@ -43,9 +43,11 @@ svg.selectAll("circle")
             .attr("cx", function(d,i) {return x_scale(d);})
             .attr("cy", height/2)
             .attr("fill", function(d,i) {return colors(i);})
+            .attr("opacity", 0)
+          .transition()
+            .duration(5000)
             .attr("opacity", 1)
-          //.exit()
-            //.remove()
+
 
  
 function update() {
@@ -54,6 +56,7 @@ function update() {
    
    svg.selectAll("circle")
                .data(data)
+                 .attr("fill", "black")
                .exit()
               .transition()
                 .duration(2000)

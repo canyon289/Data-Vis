@@ -10,7 +10,7 @@
     }
 </style>
 <body>
-<script src="../d3/d3.v3.js"></script>
+<script src="../lib/js/d3.v3.js"></script>
 <script>
 
 //Dataset
@@ -53,6 +53,9 @@ svg.selectAll("circle")
             .attr("cx", function(d,i) {return x_scale(d);})
             .attr("cy", height/2)
             .attr("fill", function(d,i) {return colors(i);})
+             .on("mouseover", function()
+                {update()}
+                );
           //.exit()
             //.remove()
 
@@ -62,8 +65,8 @@ function update() {
    svg.selectAll("circle")
                 .transition()
                 .duration(2000)
-                .attr("cy", 0);
-
+                .attr("cy", 0)
+               
     svg.selectAll("line")
             .transition()
             .duration(2000)

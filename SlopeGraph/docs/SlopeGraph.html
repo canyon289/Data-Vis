@@ -43,16 +43,17 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Set SVG parameters</p>
+              <p>Set SVG parameters for Visualization</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> data
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> json_file
 <span class="hljs-keyword">var</span> slopegraph_svg
 
-<span class="hljs-keyword">var</span> margin = {<span class="hljs-string">"left"</span>:<span class="hljs-number">20</span>, <span class="hljs-string">"right"</span>:<span class="hljs-number">20</span>, <span class="hljs-string">"top"</span>:<span class="hljs-number">20</span>, <span class="hljs-string">"bottom"</span>: <span class="hljs-number">20</span>}
-<span class="hljs-keyword">var</span> height = <span class="hljs-number">760</span> - margin.top - margin.bottom
-<span class="hljs-keyword">var</span> width = <span class="hljs-number">1280</span> - margin.left - margin.right</pre></div></div>
+<span class="hljs-keyword">var</span> marginforDescriptionDiv = <span class="hljs-number">40</span>
+<span class="hljs-keyword">var</span> margin = {<span class="hljs-string">"left"</span>:<span class="hljs-number">60</span>, <span class="hljs-string">"right"</span>:<span class="hljs-number">90</span>, <span class="hljs-string">"top"</span>:<span class="hljs-number">40</span>, <span class="hljs-string">"bottom"</span>: <span class="hljs-number">40</span>};
+<span class="hljs-keyword">var</span> height = <span class="hljs-built_in">window</span>.innerHeight - margin.top - margin.bottom - <span class="hljs-number">40</span>;
+<span class="hljs-keyword">var</span> width = <span class="hljs-number">1200</span> - margin.left - margin.right;</pre></div></div>
             
         </li>
         
@@ -63,11 +64,11 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Years for Lines</p>
+              <p>Array for all years standards are available</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> years = [<span class="hljs-number">2013</span>,<span class="hljs-number">2014</span>,<span class="hljs-number">2015</span>]</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> years = [<span class="hljs-number">2013</span>,<span class="hljs-number">2014</span>,<span class="hljs-number">2015</span>];</pre></div></div>
             
         </li>
         
@@ -78,13 +79,13 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Set Scales</p>
+              <p>Set Scales for visualization</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> x_scale = d3.scale.ordinal()
-                .domain(years)
-                .rangeRoundBands([<span class="hljs-number">0</span>,width])</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> x_scale = d3.scale.linear()
+                .domain([<span class="hljs-number">2013</span>, <span class="hljs-number">2015</span>])
+                .rangeRound([<span class="hljs-number">0</span>,width]);</pre></div></div>
             
         </li>
         
@@ -95,13 +96,13 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Change this as its going to go from -max to + max</p>
+              <p>YAxis hoisted for updates</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> y_scale = d3.scale.linear()
-                .domain([-<span class="hljs-number">200</span>,<span class="hljs-number">200</span>])
-                .range([height, <span class="hljs-number">0</span>])</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> yAxis
+<span class="hljs-keyword">var</span> y_scale = d3.scale.linear()
+                .rangeRound([height, <span class="hljs-number">0</span>]);</pre></div></div>
             
         </li>
         
@@ -116,7 +117,9 @@ Create two data structures. One is the lines data, another is a part description
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> cost_diff = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cost</span>) </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">part_num_string</span>(<span class="hljs-params">svg_element</span>) </span>{<span class="hljs-keyword">return</span> d3.select(svg_element).datum()[<span class="hljs-string">"key"</span>].substring(<span class="hljs-number">0</span>,<span class="hljs-number">12</span>);}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">line_selector</span>(<span class="hljs-params">part_num</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -127,18 +130,13 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Returns differentials from first value in array</p>
+              <p>Takes line element and returns selection of all other lines with same part number</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> cost_diff_array = []
-    
-    cost.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
-        cost_diff_array.push(d-cost[<span class="hljs-number">0</span>])
-        });
-        
-    <span class="hljs-keyword">return</span> cost_diff_array;
-    }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  
+  <span class="hljs-keyword">var</span> part_num_lines = d3.selectAll(<span class="hljs-string">".cost_line"</span>)
+                      .filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d, i</span>) </span>{<span class="hljs-keyword">return</span> d[<span class="hljs-string">"key"</span>].substring(<span class="hljs-number">0</span>,<span class="hljs-number">12</span>) === part_num})</pre></div></div>
             
         </li>
         
@@ -149,11 +147,15 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Drawing Functions    </p>
+              <p>debugger</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw_canvas</span>(<span class="hljs-params"></span>)</span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">return</span> part_num_lines
+};
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hours_mouseover_generator</span>(<span class="hljs-params">part_num, part_num_lines</span>) </span>{</pre></div></div>
             
         </li>
         
@@ -164,16 +166,18 @@ Create two data structures. One is the lines data, another is a part description
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Adds svg and draws year lines</p>
+              <p>Takes part num and line selection and creates labels for total hours</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    slopegraph_svg = d3.select(<span class="hljs-string">"body"</span>)
-                        .append(<span class="hljs-string">"svg"</span>)
-                        .attr(<span class="hljs-string">"width"</span>, width)
-                        .attr(<span class="hljs-string">"height"</span>, height)
-                      .append(<span class="hljs-string">"g"</span>)
-                        .attr(<span class="hljs-string">"transform"</span>, <span class="hljs-string">"translate("</span> + margin.left + <span class="hljs-string">","</span> + margin.top + <span class="hljs-string">")"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> base_cost = json_file[<span class="hljs-string">"part_attr"</span>][part_num][<span class="hljs-string">"base_cost"</span>]
+  <span class="hljs-keyword">var</span> hours_array = []
+  
+  part_num_lines.data().forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
+    hours_array.push({<span class="hljs-string">"year"</span>: d[<span class="hljs-string">"x1"</span>], <span class="hljs-string">"cost"</span>: base_cost + d[<span class="hljs-string">"y1"</span>]}, {<span class="hljs-string">"year"</span>: d[<span class="hljs-string">"x2"</span>], <span class="hljs-string">"cost"</span>: base_cost + d[<span class="hljs-string">"y2"</span>]})
+  });
+  
+  <span class="hljs-keyword">if</span> (part_num === <span class="hljs-string">"10393264-032"</span>) {</pre></div></div>
             
         </li>
         
@@ -183,6 +187,83 @@ Create two data structures. One is the lines data, another is a part description
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>debugger</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  }
+  
+  <span class="hljs-keyword">return</span> hours_array
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">all_y</span>(<span class="hljs-params">lines_array</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Returns an array of all y values from input JSON</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  y_values = []
+  
+  lines_array.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
+    y_values.push(d[<span class="hljs-string">"y1"</span>], d[<span class="hljs-string">"y2"</span>])
+  });
+  
+  <span class="hljs-keyword">return</span> y_values
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Drawing Functions    </p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw_canvas</span>(<span class="hljs-params"></span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Adds svg and draws year lines</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    slopegraph_svg = d3.select(<span class="hljs-string">"#Slopegraph"</span>)
+                        .append(<span class="hljs-string">"svg"</span>)
+                        .attr(<span class="hljs-string">"width"</span>, width + margin.left + margin.right)
+                        .attr(<span class="hljs-string">"height"</span>, height + margin.top + margin.bottom)
+                      .append(<span class="hljs-string">"g"</span>)
+                        .attr(<span class="hljs-string">"transform"</span>, <span class="hljs-string">"translate("</span> + margin.left + <span class="hljs-string">","</span> + margin.top + <span class="hljs-string">")"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Maybe I should do this with scales instead. Consider it later</p>
 
@@ -199,16 +280,55 @@ Create two data structures. One is the lines data, another is a part description
                 .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"year_line"</span>)
     }
     
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw_cost_lines</span>(<span class="hljs-params">data</span>) </span>{</pre></div></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw_axes</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
             
         </li>
         
         
-        <li id="section-11">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Draws the axes for the years and cost</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> xAxis = d3.svg.axis()
+          .scale(x_scale)
+          .orient(<span class="hljs-string">"top"</span>)
+          .tickValues(years)
+          .tickFormat(d3.format(<span class="hljs-string">"d"</span>))
+    
+    yAxis = d3.svg.axis()
+          .scale(y_scale)
+          .orient(<span class="hljs-string">"right"</span>)
+          
+     
+    slopegraph_svg.append(<span class="hljs-string">"g"</span>)
+                .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"xAxis"</span>)
+                .attr(<span class="hljs-string">"transform"</span>, <span class="hljs-string">"translate(0,25)"</span>)
+                .call(xAxis)
+               .selectAll(<span class="hljs-string">"text"</span>)
+                 .attr(<span class="hljs-string">"transform"</span>, <span class="hljs-string">"rotate(-90)"</span>)
+
+    slopegraph_svg.append(<span class="hljs-string">"g"</span>)
+                .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"yAxis"</span>)
+                .attr(<span class="hljs-string">"transform"</span>, <span class="hljs-string">"translate("</span> + (width + <span class="hljs-number">20</span>) + <span class="hljs-string">",0)"</span>)
+                .call(yAxis)
+}
+    
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">draw_cost_lines</span>(<span class="hljs-params">json_file</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Draws cost lines
 Decided on data structure where each line is it’s own object</p>
@@ -217,35 +337,208 @@ Decided on data structure where each line is it’s own object</p>
             
             <div class="content"><div class='highlight'><pre>    
     slopegraph_svg.selectAll(<span class="hljs-string">".cost_line"</span>)
-        .data(data)
+        .data(json_file[<span class="hljs-string">"costs"</span>])
       .enter()
       .append(<span class="hljs-string">"line"</span>)
         .attr(<span class="hljs-string">"x1"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> x_scale(d[<span class="hljs-string">"x1"</span>])})
         .attr(<span class="hljs-string">"x2"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> x_scale(d[<span class="hljs-string">"x2"</span>])})
-        .attr(<span class="hljs-string">"y1"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> y_scale(d[<span class="hljs-string">"y1"</span>])})
-        .attr(<span class="hljs-string">"y2"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> y_scale(d[<span class="hljs-string">"y2"</span>])})
+        .attr(<span class="hljs-string">"y1"</span>, y_scale(<span class="hljs-number">0</span>))
+        .attr(<span class="hljs-string">"y2"</span>, y_scale(<span class="hljs-number">0</span>))
         .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"cost_line"</span>)
-    }
-    
-d3.json(<span class="hljs-string">"data_2.json"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error, json</span>) </span>{</pre></div></div>
+        .attr(<span class="hljs-string">"stroke"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> d[<span class="hljs-string">"y1"</span>] &gt; d[<span class="hljs-string">"y2"</span>] ? <span class="hljs-string">"green"</span>: (d[<span class="hljs-string">"y1"</span>] &lt; d[<span class="hljs-string">"y2"</span>] ? <span class="hljs-string">"red"</span> : <span class="hljs-string">"black"</span>);})
+        .attr(<span class="hljs-string">"opacity"</span>, .<span class="hljs-number">1</span>)
+      .on(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{<span class="hljs-built_in">window</span>.open(<span class="hljs-string">"http://eng.nov.com/TC_V3.swf?pn="</span> + part_num_string(<span class="hljs-keyword">this</span>));})
+      .on(<span class="hljs-string">"mouseover"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">var</span> part_num = part_num_string(<span class="hljs-keyword">this</span>)</pre></div></div>
             
         </li>
         
         
-        <li id="section-12">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>Load data and construct </p>
+              <p>Highlight parts line</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    data = json   
-    draw_canvas()
-    draw_cost_lines(data)
-    });</pre></div></div>
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> part_lines = line_selector(part_num)
+            part_lines
+              .style(<span class="hljs-string">"stroke-width"</span>, <span class="hljs-string">"5px"</span>)
+              .style(<span class="hljs-string">"opacity"</span>, <span class="hljs-number">1</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Add labels for hours on top of each year line</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            slopegraph_svg.selectAll(<span class="hljs-string">".Total_Hours"</span>)
+              .data(hours_mouseover_generator(part_num, part_lines))
+            .enter()
+              .append(<span class="hljs-string">"text"</span>)
+              .text(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> d[<span class="hljs-string">"cost"</span>] + <span class="hljs-string">" hours"</span>;})
+              .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"Total_Hours"</span>)
+              .attr(<span class="hljs-string">"x"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> x_scale(d[<span class="hljs-string">"year"</span>]);})
+              .attr(<span class="hljs-string">"y"</span>, -<span class="hljs-number">10</span>)
+              .attr(<span class="hljs-string">"text-anchor"</span>, <span class="hljs-string">"middle"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>Change text to include part number</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> desc = json_file[<span class="hljs-string">"part_attr"</span>][part_num][<span class="hljs-string">"desc"</span>]
+            
+            d3.select(<span class="hljs-string">"#Title h3"</span>)
+              .text(part_num + <span class="hljs-string">"-"</span> + desc)
+          })
+      .on(<span class="hljs-string">"mouseout"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{  
+            <span class="hljs-keyword">var</span> part_num = part_num_string(<span class="hljs-keyword">this</span>)    
+            
+            line_selector(part_num)
+              .style(<span class="hljs-string">"stroke-width"</span>, <span class="hljs-literal">null</span>)
+              .style(<span class="hljs-string">"opacity"</span>, <span class="hljs-literal">null</span>);
+              
+             slopegraph_svg.selectAll(<span class="hljs-string">".Total_Hours"</span>).remove()
+             
+             d3.select(<span class="hljs-string">"#Title h3"</span>)
+              .text(<span class="hljs-string">"Each line is a change in average part standard for a workcenter. Hover over lines for detail"</span>)
+          })
+        .transition()
+          .attr(<span class="hljs-string">"x1"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> x_scale(d[<span class="hljs-string">"x1"</span>]);})
+          .attr(<span class="hljs-string">"x2"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> x_scale(d[<span class="hljs-string">"x2"</span>]);})
+          .attr(<span class="hljs-string">"y1"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> y_scale(d[<span class="hljs-string">"y1"</span>]);})
+          .attr(<span class="hljs-string">"y2"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> y_scale(d[<span class="hljs-string">"y2"</span>]);});
+          
+         slopegraph_svg.select(<span class="hljs-string">".yAxis"</span>)
+           .transition()
+           .call(yAxis)
+}
+    
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">create_graph</span>(<span class="hljs-params">resource_name</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Create slopegraph given resource name</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> json_filename = resource_name + <span class="hljs-string">".json"</span>
+  
+  d3.json(json_filename, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">error, json</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Load data and construct slopegraph</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      json_file = json 
+      <span class="hljs-keyword">var</span> max_y = d3.max(all_y(json_file[<span class="hljs-string">"costs"</span>]), <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{<span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.abs(d)})
+      y_scale.domain([-max_y, max_y])
+      draw_cost_lines(json_file)
+      
+      }); 
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>UI Elements</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>$(<span class="hljs-string">"button"</span>).click(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Get resource name and create callback to pass</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">var</span> resource_name = <span class="hljs-keyword">this</span>.textContent;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">graph_callback</span>(<span class="hljs-params"></span>) </span>{
+      create_graph(resource_name);
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Scroll to given id</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    smoothScroll.animateScroll(<span class="hljs-literal">null</span>, <span class="hljs-string">"#Slopegraph"</span>, {speed: <span class="hljs-number">2000</span>, easing: <span class="hljs-string">'easeInCubic'</span>, callbackAfter:graph_callback});
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Initialize graph</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>draw_canvas()
+y_scale.domain([<span class="hljs-number">0</span>,<span class="hljs-number">0</span>])
+draw_axes()
+smoothScroll.init()</pre></div></div>
             
         </li>
         

@@ -8,7 +8,8 @@ var slopegraph_svg
 
 var marginforDescriptionDiv = 40
 var margin = {"left":60, "right":90, "top":40, "bottom": 40};
-var height = window.innerHeight - margin.top - margin.bottom - 40;
+var header_height = 200
+var height = window.innerHeight - margin.top - margin.bottom - header_height;
 var width = 1200 - margin.left - margin.right;
 
 //Array for all years standards are available
@@ -41,7 +42,6 @@ function line_selector(part_num) {
 
 function hours_mouseover_generator(part_num, part_num_lines) {
   //Takes part num and line selection and creates labels for total hours
-  debugger
   var base_cost = json_file["part_attr"][part_num]["base_cost"]
   var hours_array = []
   
@@ -115,14 +115,34 @@ function draw_axes() {
                 .call(yAxis)
 }
     
+function remove_cost_lines(callback) {
+    //Draws cost lines
+    
+    //Transitions lines to zero and delete
+    slopegraph_svg.selectAll(".cost_line")
+        .transition()
+        .attr("y1", y_scale(0))
+        .attr("y2", y_scale(0))
+        .each("end", function() {console.log("test")})
+      .remove()
+      //OMGGGG JAVASCRIPT FIRES ASYNCHRONOUSLY THATS SOOOO ANNOYING
+      setTimeout(callback, 1000)
+}
+    
 function draw_cost_lines(json_file) {
     //Draws cost lines
-    //Decided on data structure where each line is it's own object
     
-    slopegraph_svg.selectAll(".cost_line")
-        .data(json_file["costs"])
-      .enter()
-      .append("line")
+    //Transitions lines to zero and delete
+    slopegraph_svg.selectAll(".cost_line").data({})
+      .exit()
+        .transition()
+        .attr("y1", y_scale(0))
+        .attr("y2", y_scale(0))
+      .remove()
+      
+      
+      slopegraph_svg.selectAll(".cost_line").data(json_file["costs"])
+       .enter().append("line")
         .attr("x1", function(d) {return x_scale(d["x1"])})
         .attr("x2", function(d) {return x_scale(d["x2"])})
         .attr("y1", y_scale(0))
@@ -139,7 +159,7 @@ function draw_cost_lines(json_file) {
             part_lines
               .style("stroke-width", "5px")
               .style("opacity", 1);
-            
+        
             //Add labels for hours on top of each year line
             slopegraph_svg.selectAll(".Total_Hours")
               .data(hours_mouseover_generator(part_num, part_lines))
@@ -152,7 +172,7 @@ function draw_cost_lines(json_file) {
               .attr("text-anchor", "middle");
               
             //Change text to include part number
-            var desc = json_file["part_attr"][part_num]["desc"]
+            var desc = json_file["part_attr"][part_num]["desc"].substring(0,65)
             
             d3.select("#Title h3")
               .text(part_num + "-" + desc)
@@ -170,11 +190,9 @@ function draw_cost_lines(json_file) {
               .text("Each line is a change in average part standard for a workcenter. Hover over lines for detail")
           })
         .transition()
-          .attr("x1", function(d) {return x_scale(d["x1"]);})
-          .attr("x2", function(d) {return x_scale(d["x2"]);})
           .attr("y1", function(d) {return y_scale(d["y1"]);})
-          .attr("y2", function(d) {return y_scale(d["y2"]);});
-          
+          .attr("y2", function(d) {return y_scale(d["y2"]);})
+
          slopegraph_svg.select(".yAxis")
            .transition()
            .call(yAxis)
@@ -182,9 +200,9 @@ function draw_cost_lines(json_file) {
     
 function create_graph(resource_name) {
   //Create slopegraph given resource name
-  var json_filename = resource_name + ".json"
+  var json_path = "data/" + resource_name + ".json"
   
-  d3.json(json_filename, function(error, json) {
+  d3.json(json_path, function(error, json) {
       //Load data and construct slopegraph
       json_file = json 
       var max_y = d3.max(all_y(json_file["costs"]), function(d) {return Math.abs(d)})
@@ -197,13 +215,19 @@ function create_graph(resource_name) {
 //UI Elements
 $("button").click(function() {
     //Get resource name and create callback to pass
-    var resource_name = this.textContent;
+    var resource_name = this.textContent;    
+    
     function graph_callback() {
-      create_graph(resource_name);
+      remove_cost_lines(function() {
+        create_graph(resource_name);
+      })
     }
+
+    d3.selectAll(".active").classed("active", false)
+    d3.select(this).classed("active", true)
     
     //Scroll to given id
-    smoothScroll.animateScroll(null, "#Slopegraph", {speed: 2000, easing: 'easeInCubic', callbackAfter:graph_callback});
+    smoothScroll.animateScroll(null, "#Slopegraph", {speed: 1500, easing: 'easeInCubic', callbackAfter:graph_callback});
 });
 
 //Initialize graph
